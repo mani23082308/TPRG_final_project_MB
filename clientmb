@@ -32,6 +32,17 @@ def get_sd_card_clock_speed():
     """Fetch the SD card interface clock speed."""
     result = subprocess.run(["vcgencmd", "measure_clock", "emmc"], capture_output=True, text=True)
     return int(result.stdout.strip().split('=')[1])
+
+def get_pixel_clock_speed():
+    """Fetch the pixel clock speed."""
+    result = subprocess.run(["vcgencmd", "measure_clock", "pixel"], capture_output=True, text=True)
+    return int(result.stdout.strip().split('=')[1])
+
+def get_pixel_clock_speed():
+    """Fetch the pixel clock speed."""
+    result = subprocess.run(["vcgencmd", "measure_clock", "pixel"], capture_output=True, text=True)
+    return int(result.stdout.strip().split('=')[1])
+
 def main():
     """Main function for the client to send data to the server."""
     host = '10.102.13.61'
@@ -73,8 +84,32 @@ def main():
                         "Iteration Count": iteration_count
                     }
 
+                    try:
+                        # Send data to server as JSON
+                        client_socket.send(json.dumps(data).encode('utf-8'))
+                    except BrokenPipeError:
+                        # If the connection is lost, update the status and break the loop
+                        window["-STATUS-"].update("Disconnected", text_color="red")
+                        print("Server disconnected")
+                        break
+                    except Exception as e:
+                        # Handle other potential exceptions
+                        window["-STATUS-"].update(f"Error: {str(e)}", text_color="red")
+                        print(f"Error: {e}")
+                        break
 
-def get_pixel_clock_speed():
-    """Fetch the pixel clock speed."""
-    result = subprocess.run(["vcgencmd", "measure_clock", "pixel"], capture_output=True, text=True)
-    return int(result.stdout.strip().split('=')[1])
+                    time.sleep(2)  # Wait for 2 seconds before next iteration
+
+                client_socket.close()
+
+            except Exception as e:
+                # If there is any connection error, update the window status
+                window["-STATUS-"].update(f"Error: {str(e)}", text_color="red")
+                print("Connection lost")
+                window["-STATUS-"].update("Disconnected", text_color="red")
+
+    window.close()
+
+if __name__ == "__main__":
+    main()
+
