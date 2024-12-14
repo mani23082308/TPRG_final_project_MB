@@ -1,0 +1,39 @@
+# TPRG Final project
+# Student Name : Manpreet Badgal
+# Student Id : 100945948
+# submission Date : 13 December 2024 
+# This program is strictly my own work. Any material
+# beyond course learning materials that is taken from
+# the Web or other sources is properly cited, giving.
+# credit to the original author(s)
+
+
+import json
+import time
+import subprocess
+import PySimpleGUI as sg
+
+def get_core_temperature():
+    """Fetch the core temperature of the Raspberry Pi."""
+    result = subprocess.run(["vcgencmd", "measure_temp"], capture_output=True, text=True)
+    return round(float(result.stdout.strip().split('=')[1].replace("'C", "")), 1)
+
+def get_gpu_memory():
+    """Fetch the GPU memory of the Raspberry Pi."""
+    result = subprocess.run(["vcgencmd", "get_mem", "gpu"], capture_output=True, text=True)
+    return int(result.stdout.strip().split('=')[1].replace("M", ""))
+
+def get_cpu_memory():
+    """Fetch the ARM memory of the Raspberry Pi."""
+    result = subprocess.run(["vcgencmd", "get_mem", "arm"], capture_output=True, text=True)
+    return int(result.stdout.strip().split('=')[1].replace("M", ""))
+
+def get_sd_card_clock_speed():
+    """Fetch the SD card interface clock speed."""
+    result = subprocess.run(["vcgencmd", "measure_clock", "emmc"], capture_output=True, text=True)
+    return int(result.stdout.strip().split('=')[1])
+
+def get_pixel_clock_speed():
+    """Fetch the pixel clock speed."""
+    result = subprocess.run(["vcgencmd", "measure_clock", "pixel"], capture_output=True, text=True)
+    return int(result.stdout.strip().split('=')[1])
