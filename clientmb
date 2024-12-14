@@ -32,6 +32,47 @@ def get_sd_card_clock_speed():
     """Fetch the SD card interface clock speed."""
     result = subprocess.run(["vcgencmd", "measure_clock", "emmc"], capture_output=True, text=True)
     return int(result.stdout.strip().split('=')[1])
+def main():
+    """Main function for the client to send data to the server."""
+    host = '10.102.13.61'
+    port = 5000
+    iteration_count = 0
+
+    layout = [
+        [sg.Text("Client Connection Status:", size=(20, 1)), sg.Text("Disconnected", key="-STATUS-", size=(20, 1), text_color="red")],
+        [sg.Button("Start"), sg.Button("Exit")]
+    ]
+
+    window = sg.Window("Pi Metrics Client", layout, finalize=True)
+
+    while True:
+        event, _ = window.read(timeout=2000)
+
+        if event == sg.WINDOW_CLOSED or event == "Exit":
+            break
+
+        if event == "Start":
+            try:
+                # Create socket and attempt to connect to the server
+                client_socket = socket.socket()
+                client_socket.connect((host, port))
+
+                # Immediately update the connection status to "Connected"
+                window["-STATUS-"].update("Connected", text_color="green")
+                window.refresh()  # Ensure the GUI refreshes immediately
+
+                for i in range(50):  # 50 iterations
+                    iteration_count += 1
+                    data = {
+                        "Core Temperature (°C)": get_core_temperature(),
+                        "GPU Memory (MB)": get_gpu_memory(),
+                        "CPU Memory (MB)": get_cpu_memory(),
+                        "SD Card Clock Speed (Hz)": get_sd_card_clock_speed(),
+                        "Pixel Clock Speed (Hz)": get_pixel_clock_speed(),
+                        "Clock Frequency (MHz)": get_pixel_clock_speed() / 1_000_000,  # Example conversion for clock speed
+                        "Iteration Count": iteration_count
+                    }
+
 
 def get_pixel_clock_speed():
     """Fetch the pixel clock speed."""
