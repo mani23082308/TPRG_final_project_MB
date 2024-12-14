@@ -72,3 +72,25 @@ def main():
             window["-CLOCK_FREQ-"].update(f"{metrics['Clock Frequency (MHz)']} MHz")
             window["-ITER_COUNT-"].update(metrics['Iteration Count'])
 
+
+            # Toggle LED
+            if led_on:
+                window["-LED-"].update("\u25CB", text_color="#FF0000")  # Red LED OFF
+            else:
+                window["-LED-"].update("\u25CF", text_color="#39FF14")  # Neon Green LED ON
+            led_on = not led_on  # Toggle LED state
+
+            window.refresh()  # Update the window
+
+        except Exception as e:
+            print(f"Error receiving data: {e}")
+            window["-STATUS-"].update("Disconnected", text_color="red")
+
+    # Close connection and window
+    client_socket.close()
+    window.close()
+
+if __name__ == "__main__":
+    main()
+
+
