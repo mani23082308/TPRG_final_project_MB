@@ -46,3 +46,29 @@ def main():
     window = sg.Window("Pi Metrics Server", layout, finalize=True, background_color='orangered')  #  background color
 
     led_on = False  # Initially LED is off
+
+
+    while True:
+        event, values = window.read(timeout=1000)
+
+        if event == sg.WINDOW_CLOSED or event == "Exit":
+            break
+
+        try:
+            data = client_socket.recv(1024).decode('utf-8')
+
+            if not data:
+                break  # No data received, close connection
+
+            metrics = json.loads(data)
+
+            # Update the GUI with new data
+            window["-STATUS-"].update("Connected", text_color="blue")
+            window["-CORE_TEMP-"].update(f"{metrics['Core Temperature (°C)']} °C")
+            window["-GPU_MEM-"].update(f"{metrics['GPU Memory (MB)']} MB")
+            window["-CPU_MEM-"].update(f"{metrics['CPU Memory (MB)']} MB")
+            window["-SD_CARD_CLK-"].update(f"{metrics['SD Card Clock Speed (Hz)']} Hz")
+            window["-PIXEL_CLK-"].update(f"{metrics['Pixel Clock Speed (Hz)']} Hz")
+            window["-CLOCK_FREQ-"].update(f"{metrics['Clock Frequency (MHz)']} MHz")
+            window["-ITER_COUNT-"].update(metrics['Iteration Count'])
+
